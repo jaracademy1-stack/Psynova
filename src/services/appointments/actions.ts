@@ -91,7 +91,8 @@ export async function cancelPatientAppointment(
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.rpc("cancel_patient_appointment", {
     p_appointment_id: appointmentId,
-    p_cancellation_reason: getString(formData, "reason") || null,
+    p_cancellation_reason:
+      getString(formData, "reason") || getString(formData, "note") || null,
   });
 
   if (error) {

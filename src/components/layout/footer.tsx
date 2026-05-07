@@ -5,6 +5,10 @@ import { Separator } from "@/components/ui/separator";
 const footerLinks = [
   { href: "/doctors", label: "Find doctors" },
   { href: "/doctor/register", label: "For doctors" },
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+  { href: "/consent", label: "Consent" },
+  { href: "/crisis-resources", label: "Crisis resources" },
   { href: "/login", label: "Login" },
   { href: "/register", label: "Register" },
 ];

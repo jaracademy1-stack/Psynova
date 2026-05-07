@@ -8,7 +8,7 @@ import type {
   DoctorTimeOff,
   PatientAppointmentRow,
 } from "@/types/appointments";
-import type { DoctorVerificationReviewRow } from "@/types/admin";
+import type { AdminAuditEvent, DoctorVerificationReviewRow } from "@/types/admin";
 import type {
   DoctorProfile,
   PatientProfile,
@@ -64,6 +64,11 @@ export type Database = {
         DoctorVerificationReviewRow,
         DoctorVerificationReviewInsert,
         DoctorVerificationReviewUpdate
+      >;
+      admin_audit_events: TableDefinition<
+        AdminAuditEvent,
+        AdminAuditEventInsert,
+        AdminAuditEventUpdate
       >;
     };
     Views: {
@@ -300,3 +305,15 @@ export type DoctorVerificationReviewInsert = {
 export type DoctorVerificationReviewUpdate = Partial<
   Omit<DoctorVerificationReviewInsert, "id" | "doctor_profile_id">
 >;
+
+export type AdminAuditEventInsert = {
+  id?: string;
+  actor_profile_id?: string | null;
+  action: AdminAuditEvent["action"];
+  entity_type: AdminAuditEvent["entity_type"];
+  entity_id?: string | null;
+  metadata?: AdminAuditEvent["metadata"];
+  created_at?: string;
+};
+
+export type AdminAuditEventUpdate = Partial<Omit<AdminAuditEventInsert, "id">>;

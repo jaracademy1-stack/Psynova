@@ -35,12 +35,19 @@ export function DoctorAppointmentsSection({
         <h2 className="text-2xl font-semibold">Appointment requests</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           Review requests and manage confirmed sessions. Patient contact details
-          are not shown in this phase.
+          are not shown in this phase. Confirm only when the time is workable;
+          decline or cancel with a short neutral note when needed.
         </p>
       </div>
 
       {appointments.length ? (
         <div className="grid gap-4">
+          <Card className="border bg-accent/70">
+            <Card.Content className="p-4 text-sm leading-6 text-accent-foreground">
+              Appointment actions are validated server-side. Doctors can confirm
+              or decline requests, and can cancel or complete confirmed sessions.
+            </Card.Content>
+          </Card>
           {requested.map((appointment) => (
             <DoctorAppointmentCard
               key={appointment.id}

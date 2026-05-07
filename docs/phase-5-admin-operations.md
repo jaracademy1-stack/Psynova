@@ -10,6 +10,8 @@ Phase 5 adds a protected admin workflow for doctor application review. It does n
 - Columns include doctor profile, reviewer profile, decision, internal review note, and created timestamp.
 - Review notes are admin-only and are not exposed publicly or to doctors.
 
+Phase 6 adds `admin_audit_events` for admin-only operational audit logging of doctor approval, rejection, public status changes, and active status changes.
+
 ## Doctor Profile Fields Added
 
 `doctor_profiles`
@@ -118,7 +120,6 @@ Internal admin review notes are not shown to doctors.
 
 ## Known Limitations
 
-- No admin audit log beyond verification review records.
 - No license document storage/review workflow yet.
 - No admin user search page yet.
 - No notification delivery when doctors are approved or rejected.

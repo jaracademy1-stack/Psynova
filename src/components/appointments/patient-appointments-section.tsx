@@ -30,7 +30,8 @@ export function PatientAppointmentsSection({
         <div>
           <h2 className="text-2xl font-semibold">Appointments</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Booking requests and confirmed sessions appear here.
+            Booking requests and confirmed sessions appear here. You can cancel
+            requested or confirmed appointments from this dashboard.
           </p>
         </div>
         <Link
@@ -43,6 +44,13 @@ export function PatientAppointmentsSection({
 
       {appointments.length ? (
         <div className="grid gap-4">
+          <Card className="border bg-accent/70">
+            <Card.Content className="p-4 text-sm leading-6 text-accent-foreground">
+              Requested appointments are waiting for doctor review. Confirmed
+              appointments are accepted. Cancelled, declined, completed, and
+              no-show appointments move into recent history.
+            </Card.Content>
+          </Card>
           {activeAppointments.map((appointment) => (
             <PatientAppointmentCard
               key={appointment.id}
@@ -127,12 +135,18 @@ function PatientAppointmentCard({
           ) : null}
         </div>
         {canCancel && !compact ? (
-          <AppointmentActionForm
-            appointmentId={appointment.id}
-            label="Cancel"
-            action={cancelPatientAppointment}
-            tone="danger"
-          />
+          <div className="flex flex-col gap-2 md:max-w-56">
+            <AppointmentActionForm
+              appointmentId={appointment.id}
+              label="Cancel"
+              action={cancelPatientAppointment}
+              tone="danger"
+              notePlaceholder="Optional reason"
+            />
+            <p className="text-xs leading-5 text-muted-foreground">
+              Cancelling releases the request from your active appointments.
+            </p>
+          </div>
         ) : null}
       </Card.Content>
     </Card>

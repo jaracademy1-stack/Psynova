@@ -15,6 +15,24 @@ export type DoctorVerificationReview = DoctorVerificationReviewRow & {
   reviewer_name: string | null;
 };
 
+export type AdminAuditAction =
+  | "doctor_approved"
+  | "doctor_rejected"
+  | "doctor_public_status_changed"
+  | "profile_active_status_changed";
+
+export type AdminAuditEntityType = "doctor_profile" | "profile";
+
+export type AdminAuditEvent = {
+  id: string;
+  actor_profile_id: string | null;
+  action: AdminAuditAction;
+  entity_type: AdminAuditEntityType;
+  entity_id: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+};
+
 export type DoctorApplication = {
   id: string;
   user_id: string;

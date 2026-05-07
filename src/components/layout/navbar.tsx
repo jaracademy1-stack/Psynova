@@ -42,7 +42,7 @@ export function Navbar() {
 
         <Link
           href="/doctors"
-          aria-label="Open booking"
+          aria-label="Browse doctors"
           className={cn(buttonVariants({ variant: "outline", size: "icon" }), "md:hidden")}
         >
           <Menu />
