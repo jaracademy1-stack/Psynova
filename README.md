@@ -26,6 +26,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
+For the current Vercel production deployment, set:
+
+```env
+NEXT_PUBLIC_SITE_URL=https://psynova-phi.vercel.app
+```
+
 4. Run the app:
 
 ```bash
@@ -64,9 +70,9 @@ supabase db lint --local
 
 Browser-safe variables:
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_SUPABASE_URL` - browser-safe Supabase project URL.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - browser-safe anonymous key protected by RLS.
+- `NEXT_PUBLIC_SITE_URL` - browser-safe site URL. Use `https://psynova-phi.vercel.app` for the current production deployment.
 
 Server-only or local CLI variables:
 
@@ -83,20 +89,21 @@ Never commit `.env.local` or real secrets. Rotate any access token that was past
 3. Add Vercel environment variables:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_SITE_URL`
+   - `NEXT_PUBLIC_SITE_URL=https://psynova-phi.vercel.app`
 4. Do not add `SUPABASE_SERVICE_ROLE_KEY` to Vercel unless a future server-only feature truly requires it.
-5. Use the default build command:
+5. Redeploy after changing any Vercel environment variable.
+6. Use the default build command:
 
 ```bash
 npm run build
 ```
 
-6. In Supabase Auth settings, configure redirect URLs for:
+7. In Supabase Auth settings, configure redirect URLs for:
    - `http://localhost:3000`
    - Vercel preview URLs
-   - the production domain
-7. Review Supabase Auth rate limits, CAPTCHA/bot protection, email confirmation, and allowed redirect domains before launch.
-8. Test protected routes on the Vercel preview deployment.
+   - `https://psynova-phi.vercel.app`
+8. Review Supabase Auth rate limits, CAPTCHA/bot protection, email confirmation, and allowed redirect domains before launch.
+9. Test protected routes on the Vercel preview deployment.
 
 ## Project Structure
 

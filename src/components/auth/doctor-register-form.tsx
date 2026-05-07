@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import Link from "next/link";
+import { useActionState, useState } from "react";
 import { Button, Card, Checkbox, Input, TextArea } from "@heroui/react";
 
 import { FieldError } from "@/components/auth/field-error";
@@ -9,9 +10,29 @@ import { signUpDoctor } from "@/services/auth/actions";
 
 export function DoctorRegisterForm() {
   const [state, formAction, isPending] = useActionState(signUpDoctor, {});
+  const [offersOnline, setOffersOnline] = useState(true);
+  const [offersInPerson, setOffersInPerson] = useState(false);
+  const sessionOptionErrors =
+    offersOnline || offersInPerson ? undefined : state.fieldErrors?.offersOnline;
+
+  if (state.success) {
+    return (
+      <Card className="border bg-background/60">
+        <Card.Header>
+          <Card.Title>Confirm your email</Card.Title>
+          <Card.Description>{state.success}</Card.Description>
+        </Card.Header>
+        <Card.Content>
+          <Link href="/login" className="font-medium text-primary">
+            Go to login
+          </Link>
+        </Card.Content>
+      </Card>
+    );
+  }
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} noValidate className="flex flex-col gap-6">
       <FormMessage message={state.error} />
 
       <Card className="border bg-background/60">
@@ -125,15 +146,33 @@ export function DoctorRegisterForm() {
           />
           <div className="flex flex-col gap-3 rounded-2xl border bg-card p-4">
             <p className="text-sm font-medium">Session options</p>
-            <Checkbox name="offersOnline" value="on" defaultSelected>
+            <input
+              type="hidden"
+              name="offersOnline"
+              value={offersOnline ? "true" : "false"}
+            />
+            <input
+              type="hidden"
+              name="offersInPerson"
+              value={offersInPerson ? "true" : "false"}
+            />
+            <Checkbox
+              isSelected={offersOnline}
+              onChange={setOffersOnline}
+              isInvalid={Boolean(sessionOptionErrors?.length)}
+            >
               <Checkbox.Control />
               <Checkbox.Content>Online sessions</Checkbox.Content>
             </Checkbox>
-            <Checkbox name="offersInPerson" value="on">
+            <Checkbox
+              isSelected={offersInPerson}
+              onChange={setOffersInPerson}
+              isInvalid={Boolean(sessionOptionErrors?.length)}
+            >
               <Checkbox.Control />
               <Checkbox.Content>In-person sessions</Checkbox.Content>
             </Checkbox>
-            <FieldError errors={state.fieldErrors?.offersOnline} />
+            <FieldError errors={sessionOptionErrors} />
           </div>
         </Card.Content>
       </Card>

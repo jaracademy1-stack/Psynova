@@ -2,17 +2,26 @@ import { Alert } from "@heroui/react";
 
 type FormMessageProps = {
   message?: string;
+  tone?: "danger" | "success";
+  title?: string;
 };
 
-export function FormMessage({ message }: FormMessageProps) {
+export function FormMessage({
+  message,
+  tone = "danger",
+  title,
+}: FormMessageProps) {
   if (!message) {
     return null;
   }
 
+  const resolvedTitle =
+    title ?? (tone === "success" ? "Request received" : "We could not complete that request");
+
   return (
-    <Alert status="danger">
+    <Alert status={tone}>
       <Alert.Content>
-        <Alert.Title>We could not complete that request</Alert.Title>
+        <Alert.Title>{resolvedTitle}</Alert.Title>
         <Alert.Description>{message}</Alert.Description>
       </Alert.Content>
     </Alert>

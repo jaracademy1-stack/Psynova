@@ -100,10 +100,13 @@ export function PatientRegisterForm() {
             <FieldError errors={state.fieldErrors?.confirmPassword} />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
+            <input
+              type="hidden"
+              name="consentAccepted"
+              value={consentAccepted ? "true" : "false"}
+            />
             <Checkbox
               id="consentAccepted"
-              name="consentAccepted"
-              value="on"
               isSelected={consentAccepted}
               onChange={setConsentAccepted}
               isInvalid={Boolean(consentErrors?.length)}

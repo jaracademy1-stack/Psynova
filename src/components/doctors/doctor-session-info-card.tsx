@@ -23,8 +23,7 @@ export function DoctorSessionInfoCard({
       <Card.Header>
         <Card.Title>Session information</Card.Title>
         <Card.Description>
-          Review the public session details before booking opens in the next
-          phase.
+          Review the public session details before choosing an available time.
         </Card.Description>
       </Card.Header>
       <Card.Content className="grid gap-4">

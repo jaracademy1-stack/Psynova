@@ -25,7 +25,7 @@ const steps = [
   {
     title: "Search thoughtfully",
     description:
-      "Browse professionals by specialty, language, session type, and availability when the directory is connected.",
+      "Browse verified professionals by specialty, language, session type, and available appointment times.",
     icon: Search,
   },
   {
@@ -60,8 +60,8 @@ export default function Home() {
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
                 Psynova helps patients discover licensed mental health
-                professionals, compare availability, and prepare to book
-                sessions in a private, secure workflow.
+                professionals, review available times, and request private
+                appointments in a secure workflow.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -103,7 +103,8 @@ export default function Home() {
                   A calmer path to the right appointment
                 </CardTitle>
                 <CardDescription>
-                  The full booking flow will be added in later phases.
+                  Browse verified professionals, review available times, and
+                  request a private appointment.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -129,7 +130,7 @@ export default function Home() {
                       <div>
                         <p className="font-medium">Privacy-first accounts</p>
                         <p className="text-sm text-muted-foreground">
-                          Auth, consent, and role-based dashboards next.
+                          Auth, consent, and role-based dashboards are active.
                         </p>
                       </div>
                     </div>

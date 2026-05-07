@@ -6,7 +6,6 @@ import { headers } from "next/headers";
 import {
   doctorRegistrationSchema,
   formatZodFieldErrors,
-  formatZodErrors,
   loginSchema,
   patientRegistrationSchema,
   type AuthActionState,
@@ -33,8 +32,11 @@ function getString(formData: FormData, key: string) {
   return typeof value === "string" ? value : "";
 }
 
-function getCheckbox(formData: FormData, key: string) {
-  const value = formData.get(key);
+function getBoolean(formData: FormData, key: string) {
+  const values = formData
+    .getAll(key)
+    .filter((value): value is string => typeof value === "string");
+  const value = values.at(-1);
   return value === "on" || value === "true" || value === "1";
 }
 
@@ -65,6 +67,24 @@ function normalizePatientSignupError(message?: string) {
   }
 
   return "We could not create this account. Please check your details or try another email.";
+}
+
+function normalizeDoctorSignupError(message?: string) {
+  const normalized = message?.toLowerCase() ?? "";
+
+  if (normalized.includes("already") || normalized.includes("registered")) {
+    return "An account may already exist for this email. Try logging in or use another email.";
+  }
+
+  if (normalized.includes("password")) {
+    return "Use a stronger password with at least 8 characters.";
+  }
+
+  if (normalized.includes("email")) {
+    return "Enter a valid email address or try another email.";
+  }
+
+  return "We could not submit your doctor application. Please check your details and try again.";
 }
 
 function normalizeLoginError(message?: string) {
@@ -181,7 +201,7 @@ export async function signUpPatient(
     password: getString(formData, "password"),
     confirmPassword: getString(formData, "confirmPassword"),
     phone: getString(formData, "phone"),
-    consentAccepted: getCheckbox(formData, "consentAccepted"),
+    consentAccepted: getBoolean(formData, "consentAccepted"),
   });
 
   if (!parsed.success) {
@@ -279,13 +299,17 @@ export async function signUpDoctor(
     licenseNumber: getString(formData, "licenseNumber"),
     licenseCountry: getString(formData, "licenseCountry"),
     bio: getString(formData, "bio"),
-    offersOnline: getCheckbox(formData, "offersOnline"),
-    offersInPerson: getCheckbox(formData, "offersInPerson"),
+    offersOnline: getBoolean(formData, "offersOnline"),
+    offersInPerson: getBoolean(formData, "offersInPerson"),
     sessionPrice: getString(formData, "sessionPrice"),
   });
 
   if (!parsed.success) {
-    return formatZodErrors(parsed.error);
+    console.warn("VALIDATION_ERROR", {
+      action: "signUpDoctor",
+      fields: Object.keys(parsed.error.flatten().fieldErrors),
+    });
+    return formatZodFieldErrors(parsed.error);
   }
 
   const configError = assertSupabaseConfigured();
@@ -294,10 +318,11 @@ export async function signUpDoctor(
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
+      emailRedirectTo: await getEmailRedirectTo("/login"),
       data: {
         role: "doctor",
         full_name: parsed.data.fullName,
@@ -317,8 +342,49 @@ export async function signUpDoctor(
   });
 
   if (error) {
+    console.error("SUPABASE_AUTH_SIGNUP_ERROR", {
+      action: "signUpDoctor",
+      code: error.code,
+      status: error.status,
+      message: error.message,
+    });
+
     return {
-      error: "We could not submit your application. Please try again.",
+      error: normalizeDoctorSignupError(error.message),
+    };
+  }
+
+  if (!data.session) {
+    return {
+      success:
+        "Please check your email to confirm your doctor account, then log in to continue.",
+    };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, role, is_active")
+    .eq("id", data.user?.id ?? "")
+    .maybeSingle();
+
+  if (
+    profileError ||
+    !profile ||
+    profile.role !== "doctor" ||
+    !profile.is_active
+  ) {
+    console.error("PROFILE_CREATE_ERROR", {
+      action: "signUpDoctor",
+      userId: data.user?.id,
+      hasProfile: Boolean(profile),
+      profileRole: profile?.role,
+      profileIsActive: profile?.is_active,
+      message: profileError?.message,
+    });
+
+    return {
+      error:
+        "Your account was created, but the doctor profile is not ready yet. Please try signing in again or contact support.",
     };
   }
 
