@@ -1,4 +1,14 @@
 import type {
+  Appointment,
+  AppointmentSessionType,
+  AppointmentStatus,
+  AvailableSlot,
+  DoctorAppointmentRow,
+  DoctorAvailabilityRule,
+  DoctorTimeOff,
+  PatientAppointmentRow,
+} from "@/types/appointments";
+import type {
   DoctorProfile,
   PatientProfile,
   Profile,
@@ -34,6 +44,21 @@ export type Database = {
         DoctorProfileInsert,
         DoctorProfileUpdate
       >;
+      doctor_availability_rules: TableDefinition<
+        DoctorAvailabilityRule,
+        DoctorAvailabilityRuleInsert,
+        DoctorAvailabilityRuleUpdate
+      >;
+      doctor_time_off: TableDefinition<
+        DoctorTimeOff,
+        DoctorTimeOffInsert,
+        DoctorTimeOffUpdate
+      >;
+      appointments: TableDefinition<
+        Appointment,
+        AppointmentInsert,
+        AppointmentUpdate
+      >;
     };
     Views: {
       public_doctor_profiles: TableDefinition<
@@ -42,7 +67,54 @@ export type Database = {
         never
       >;
     };
-    Functions: Record<string, never>;
+    Functions: {
+      get_available_slots: {
+        Args: {
+          p_doctor_profile_id: string;
+          p_from_date?: string;
+          p_to_date?: string;
+        };
+        Returns: AvailableSlot[];
+      };
+      book_appointment: {
+        Args: {
+          p_doctor_profile_id: string;
+          p_starts_at: string;
+          p_ends_at: string;
+          p_session_type: AppointmentSessionType;
+          p_patient_message?: string | null;
+        };
+        Returns: Array<
+          Pick<
+            Appointment,
+            "id" | "starts_at" | "ends_at" | "status" | "session_type"
+          >
+        >;
+      };
+      cancel_patient_appointment: {
+        Args: {
+          p_appointment_id: string;
+          p_cancellation_reason?: string | null;
+        };
+        Returns: Array<{ id: string; status: AppointmentStatus }>;
+      };
+      update_doctor_appointment_status: {
+        Args: {
+          p_appointment_id: string;
+          p_next_status: AppointmentStatus;
+          p_note?: string | null;
+        };
+        Returns: Array<{ id: string; status: AppointmentStatus }>;
+      };
+      get_patient_appointments: {
+        Args: Record<string, never>;
+        Returns: PatientAppointmentRow[];
+      };
+      get_doctor_appointments: {
+        Args: Record<string, never>;
+        Returns: DoctorAppointmentRow[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
@@ -110,4 +182,55 @@ export type DoctorProfileInsert = {
 
 export type DoctorProfileUpdate = Partial<
   Omit<DoctorProfileInsert, "id" | "user_id">
+>;
+
+export type DoctorAvailabilityRuleInsert = {
+  id?: string;
+  doctor_profile_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  timezone?: string;
+  slot_duration_minutes?: number;
+  buffer_minutes?: number;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type DoctorAvailabilityRuleUpdate = Partial<
+  Omit<DoctorAvailabilityRuleInsert, "id" | "doctor_profile_id">
+>;
+
+export type DoctorTimeOffInsert = {
+  id?: string;
+  doctor_profile_id: string;
+  starts_at: string;
+  ends_at: string;
+  reason?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type DoctorTimeOffUpdate = Partial<
+  Omit<DoctorTimeOffInsert, "id" | "doctor_profile_id">
+>;
+
+export type AppointmentInsert = {
+  id?: string;
+  patient_profile_id: string;
+  doctor_profile_id: string;
+  starts_at: string;
+  ends_at: string;
+  status?: AppointmentStatus;
+  session_type?: AppointmentSessionType;
+  patient_message?: string | null;
+  doctor_response_note?: string | null;
+  cancellation_reason?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type AppointmentUpdate = Partial<
+  Omit<AppointmentInsert, "id" | "patient_profile_id" | "doctor_profile_id">
 >;
