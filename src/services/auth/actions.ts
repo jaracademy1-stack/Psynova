@@ -1,9 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 import {
   doctorRegistrationSchema,
+  formatZodFieldErrors,
   formatZodErrors,
   loginSchema,
   patientRegistrationSchema,
@@ -32,7 +34,8 @@ function getString(formData: FormData, key: string) {
 }
 
 function getCheckbox(formData: FormData, key: string) {
-  return formData.get(key) === "on";
+  const value = formData.get(key);
+  return value === "on" || value === "true" || value === "1";
 }
 
 function assertSupabaseConfigured(): AuthActionState | null {
@@ -44,6 +47,42 @@ function assertSupabaseConfigured(): AuthActionState | null {
     error:
       "Supabase environment variables are not configured. Add them to .env.local and restart the dev server.",
   };
+}
+
+function normalizePatientSignupError(message?: string) {
+  const normalized = message?.toLowerCase() ?? "";
+
+  if (normalized.includes("already") || normalized.includes("registered")) {
+    return "An account may already exist for this email. Try logging in or use another email.";
+  }
+
+  if (normalized.includes("password")) {
+    return "Use a stronger password with at least 8 characters.";
+  }
+
+  if (normalized.includes("email")) {
+    return "Enter a valid email address or try another email.";
+  }
+
+  return "We could not create this account. Please check your details or try another email.";
+}
+
+async function getEmailRedirectTo(path: string) {
+  const headerStore = await headers();
+  const origin = headerStore.get("origin");
+
+  if (origin) {
+    return `${origin}${path}`;
+  }
+
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+  const protocol = headerStore.get("x-forwarded-proto") ?? "https";
+
+  if (host) {
+    return `${protocol}://${host}${path}`;
+  }
+
+  return undefined;
 }
 
 export async function signInWithPassword(
@@ -105,7 +144,11 @@ export async function signUpPatient(
   });
 
   if (!parsed.success) {
-    return formatZodErrors(parsed.error);
+    console.warn("VALIDATION_ERROR", {
+      action: "signUpPatient",
+      fields: Object.keys(parsed.error.flatten().fieldErrors),
+    });
+    return formatZodFieldErrors(parsed.error);
   }
 
   const configError = assertSupabaseConfigured();
@@ -114,10 +157,11 @@ export async function signUpPatient(
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
+      emailRedirectTo: await getEmailRedirectTo("/login"),
       data: {
         role: "patient",
         full_name: parsed.data.fullName,
@@ -128,8 +172,49 @@ export async function signUpPatient(
   });
 
   if (error) {
+    console.error("SUPABASE_AUTH_SIGNUP_ERROR", {
+      action: "signUpPatient",
+      code: error.code,
+      status: error.status,
+      message: error.message,
+    });
+
     return {
-      error: "We could not create your account. Please try again.",
+      error: normalizePatientSignupError(error.message),
+    };
+  }
+
+  if (!data.session) {
+    return {
+      success:
+        "Please check your email to confirm your account, then log in to continue.",
+    };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, role, is_active")
+    .eq("id", data.user?.id ?? "")
+    .maybeSingle();
+
+  if (
+    profileError ||
+    !profile ||
+    profile.role !== "patient" ||
+    !profile.is_active
+  ) {
+    console.error("PROFILE_CREATE_ERROR", {
+      action: "signUpPatient",
+      userId: data.user?.id,
+      hasProfile: Boolean(profile),
+      profileRole: profile?.role,
+      profileIsActive: profile?.is_active,
+      message: profileError?.message,
+    });
+
+    return {
+      error:
+        "Your account was created, but the patient profile is not ready yet. Please try signing in again or contact support.",
     };
   }
 

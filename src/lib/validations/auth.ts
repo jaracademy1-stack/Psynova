@@ -26,7 +26,8 @@ export const patientRegistrationSchema = z
     confirmPassword: passwordSchema,
     phone: z.string().trim().optional(),
     consentAccepted: z.boolean().refine(Boolean, {
-      message: "Please confirm you understand the consent and privacy note.",
+      message:
+        "Please confirm the consent and privacy notice before creating your account.",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -81,12 +82,19 @@ export const doctorRegistrationSchema = z
 
 export type AuthActionState = {
   error?: string;
+  success?: string;
   fieldErrors?: Record<string, string[] | undefined>;
 };
 
 export function formatZodErrors(error: z.ZodError): AuthActionState {
   return {
     error: "Please review the highlighted fields.",
+    fieldErrors: error.flatten().fieldErrors,
+  };
+}
+
+export function formatZodFieldErrors(error: z.ZodError): AuthActionState {
+  return {
     fieldErrors: error.flatten().fieldErrors,
   };
 }
