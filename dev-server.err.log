@@ -1,0 +1,64 @@
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '2055763215'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '677600514'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardContent" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '2945639586'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/empty-state/empty-state.js#EmptyStateRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '4112348994'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '2055763215'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '677600514'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardContent" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '2945639586'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/empty-state/empty-state.js#EmptyStateRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '4112348994'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '2055763215'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '677600514'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardContent" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '2945639586'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/empty-state/empty-state.js#EmptyStateRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '4112348994'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '2055763215'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '677600514'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/card/card.js#CardContent" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '2945639586'
+}
+⨯ Error: Could not find the module "[project]/node_modules/@heroui/react/dist/components/empty-state/empty-state.js#EmptyStateRoot" in the React Client Manifest. This is probably a bug in the React Server Components bundler.
+    at stringify (<anonymous>) {
+  digest: '4112348994'
+}
