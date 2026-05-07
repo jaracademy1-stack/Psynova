@@ -20,8 +20,8 @@ export function DoctorDirectoryHeader({
             </h1>
             <p className="max-w-2xl text-base leading-7 text-muted-foreground">
               Browse approved public profiles, compare session options, and
-              choose a professional to learn more about. Booking opens in the
-              next phase.
+              choose a professional to learn more about. Approved doctors can
+              show live availability when they have opened booking windows.
             </p>
           </div>
         </div>

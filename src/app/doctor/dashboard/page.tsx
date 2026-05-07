@@ -1,11 +1,16 @@
+import Link from "next/link";
 import { Card } from "@heroui/react";
-import { ClipboardList, EyeOff, Stethoscope } from "lucide-react";
+import { CalendarClock, ClipboardList, EyeOff, Stethoscope } from "lucide-react";
 
+import { DoctorAppointmentsSection } from "@/components/appointments/doctor-appointments-section";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { LogoutButton } from "@/components/dashboard/logout-button";
 import { PageShell } from "@/components/shared/page-shell";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { buttonVariants } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
+import { getDoctorAppointments } from "@/services/appointments/queries";
 import { requireRole } from "@/services/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -35,11 +40,19 @@ const statusCopy = {
 export default async function DoctorDashboardPage() {
   const profile = await requireRole(["doctor"]);
   const supabase = await createSupabaseServerClient();
-  const { data: doctorProfile } = await supabase
-    .from("doctor_profiles")
-    .select("professional_title, bio, verification_status, is_public")
-    .eq("user_id", profile.id)
-    .maybeSingle();
+  const [doctorProfileResult, appointments] = await Promise.all([
+    supabase
+      .from("doctor_profiles")
+      .select("professional_title, bio, verification_status, is_public")
+      .eq("user_id", profile.id)
+      .maybeSingle(),
+    getDoctorAppointments(),
+  ]);
+
+  const doctorProfile = doctorProfileResult.data;
+  const requestedAppointments = appointments.filter(
+    (appointment) => appointment.status === "requested"
+  );
 
   const status =
     statusCopy[doctorProfile?.verification_status ?? "pending"];
@@ -53,9 +66,16 @@ export default async function DoctorDashboardPage() {
             Welcome, {profile.full_name}
           </h1>
           <p className="max-w-2xl leading-7 text-muted-foreground">
-            Manage your professional profile and prepare for appointment tools
-            coming in later phases.
+            Manage your professional profile, weekly availability, and booking
+            requests.
           </p>
+          <Link
+            href="/doctor/dashboard/availability"
+            className={cn(buttonVariants(), "h-9 w-fit gap-2 px-4")}
+          >
+            <CalendarClock className="size-4" />
+            Manage availability
+          </Link>
         </div>
         <LogoutButton />
       </div>
@@ -91,12 +111,18 @@ export default async function DoctorDashboardPage() {
           <EyeOff className="size-8 text-muted-foreground" />
         </DashboardCard>
         <DashboardCard
-          title="Future appointments"
-          description="Appointments and availability are intentionally out of scope for Phase 2."
+          title="Appointment requests"
+          description={
+            requestedAppointments.length
+              ? `${requestedAppointments.length} request${requestedAppointments.length === 1 ? "" : "s"} waiting for review.`
+              : "No pending appointment requests."
+          }
         >
           <ClipboardList className="size-8 text-muted-foreground" />
         </DashboardCard>
       </div>
+
+      <DoctorAppointmentsSection appointments={appointments} />
     </PageShell>
   );
 }

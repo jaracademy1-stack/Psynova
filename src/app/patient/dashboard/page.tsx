@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card } from "@heroui/react";
 import { CalendarCheck, ClipboardCheck, Search } from "lucide-react";
 
+import { PatientAppointmentsSection } from "@/components/appointments/patient-appointments-section";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { LogoutButton } from "@/components/dashboard/logout-button";
 import { PageShell } from "@/components/shared/page-shell";
@@ -10,6 +11,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { requireRole } from "@/services/auth/session";
+import { getPatientAppointments } from "@/services/appointments/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +22,19 @@ export const metadata = {
 export default async function PatientDashboardPage() {
   const profile = await requireRole(["patient"]);
   const supabase = await createSupabaseServerClient();
-  const { data: patientProfile } = await supabase
-    .from("patient_profiles")
-    .select("preferred_name, consent_accepted")
-    .eq("user_id", profile.id)
-    .maybeSingle();
+  const [patientProfileResult, appointments] = await Promise.all([
+    supabase
+      .from("patient_profiles")
+      .select("preferred_name, consent_accepted")
+      .eq("user_id", profile.id)
+      .maybeSingle(),
+    getPatientAppointments(),
+  ]);
+
+  const patientProfile = patientProfileResult.data;
+  const activeAppointments = appointments.filter((appointment) =>
+    ["requested", "confirmed"].includes(appointment.status)
+  );
 
   const completionItems = [
     Boolean(profile.full_name),
@@ -44,8 +54,8 @@ export default async function PatientDashboardPage() {
             Welcome, {patientProfile?.preferred_name || profile.full_name}
           </h1>
           <p className="max-w-2xl leading-7 text-muted-foreground">
-            Your care, in one private place. Appointment tools will appear here
-            after booking is added in the next phase.
+            Your care, in one private place. Booking requests and confirmed
+            sessions appear here after you choose a time with a professional.
           </p>
         </div>
         <LogoutButton />
@@ -63,7 +73,11 @@ export default async function PatientDashboardPage() {
         </DashboardCard>
         <DashboardCard
           title="Upcoming sessions"
-          description="No appointments yet. Booking arrives in Phase 4."
+          description={
+            activeAppointments.length
+              ? `${activeAppointments.length} active appointment request${activeAppointments.length === 1 ? "" : "s"}.`
+              : "No active appointments yet."
+          }
         >
           <CalendarCheck className="size-8 text-muted-foreground" />
         </DashboardCard>
@@ -90,6 +104,8 @@ export default async function PatientDashboardPage() {
           </Card.Description>
         </Card.Header>
       </Card>
+
+      <PatientAppointmentsSection appointments={appointments} />
     </PageShell>
   );
 }

@@ -2,6 +2,27 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireRole } from "@/services/auth/session";
 import type { AvailableSlot } from "@/types/appointments";
 
+const platformTimezone = "Africa/Cairo";
+
+function formatDateForTimezone(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
+  if (!year || !month || !day) {
+    return date.toISOString().slice(0, 10);
+  }
+
+  return `${year}-${month}-${day}`;
+}
+
 export async function getCurrentDoctorAvailability() {
   const profile = await requireRole(["doctor"]);
   const supabase = await createSupabaseServerClient();
@@ -57,8 +78,8 @@ export async function getAvailableSlotsForDoctor(
 
   const { data, error } = await supabase.rpc("get_available_slots", {
     p_doctor_profile_id: doctorProfileId,
-    p_from_date: today.toISOString().slice(0, 10),
-    p_to_date: toDate.toISOString().slice(0, 10),
+    p_from_date: formatDateForTimezone(today, platformTimezone),
+    p_to_date: formatDateForTimezone(toDate, platformTimezone),
   });
 
   if (error || !data) {

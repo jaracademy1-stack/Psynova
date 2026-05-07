@@ -91,6 +91,53 @@ export async function deleteAvailabilityRule(formData: FormData) {
   revalidatePath(availabilityPath);
 }
 
+export async function updateAvailabilityRule(
+  _previousState: AppointmentActionResult,
+  formData: FormData
+): Promise<AppointmentActionResult> {
+  await requireRole(["doctor"]);
+
+  const id = getString(formData, "id");
+  const dayOfWeek = getNumber(formData, "dayOfWeek", -1);
+  const startTime = getString(formData, "startTime");
+  const endTime = getString(formData, "endTime");
+  const slotDuration = getNumber(formData, "slotDuration", 50);
+  const buffer = getNumber(formData, "buffer", 10);
+
+  if (!id || dayOfWeek < 0 || dayOfWeek > 6 || !startTime || !endTime) {
+    return { error: "Choose a valid day and time range." };
+  }
+
+  if (startTime >= endTime) {
+    return { error: "End time must be after start time." };
+  }
+
+  if (slotDuration < 15 || slotDuration > 180 || buffer < 0 || buffer > 60) {
+    return { error: "Check the slot duration and buffer values." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("doctor_availability_rules")
+    .update({
+      day_of_week: dayOfWeek,
+      start_time: startTime,
+      end_time: endTime,
+      timezone: getString(formData, "timezone") || "Africa/Cairo",
+      slot_duration_minutes: slotDuration,
+      buffer_minutes: buffer,
+      is_active: formData.get("isActive") === "on",
+    })
+    .eq("id", id);
+
+  if (error) {
+    return { error: "We could not update this availability rule." };
+  }
+
+  revalidatePath(availabilityPath);
+  return { success: "Availability rule updated." };
+}
+
 export async function addDoctorTimeOff(
   _previousState: AppointmentActionResult,
   formData: FormData

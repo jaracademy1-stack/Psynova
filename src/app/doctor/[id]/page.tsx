@@ -3,13 +3,15 @@ import { EmptyState } from "@heroui/react";
 import { ArrowLeft, SearchX } from "lucide-react";
 
 import { DoctorProfileAbout } from "@/components/doctors/doctor-profile-about";
-import { DoctorProfileCTA } from "@/components/doctors/doctor-profile-cta";
+import { DoctorBookingPanel } from "@/components/doctors/doctor-booking-panel";
 import { DoctorProfileHeader } from "@/components/doctors/doctor-profile-header";
 import { DoctorSessionInfoCard } from "@/components/doctors/doctor-session-info-card";
 import { SafePublicDataNotice } from "@/components/doctors/safe-public-data-notice";
 import { PageShell } from "@/components/shared/page-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getAvailableSlotsForDoctor } from "@/services/availability/queries";
+import { getCurrentUserProfile } from "@/services/auth/session";
 import { getPublicDoctorById } from "@/services/doctors/queries";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +26,10 @@ export default async function DoctorProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const doctor = await getPublicDoctorById(id);
+  const [doctor, viewerProfile] = await Promise.all([
+    getPublicDoctorById(id),
+    getCurrentUserProfile(),
+  ]);
 
   if (!doctor) {
     return (
@@ -52,6 +57,8 @@ export default async function DoctorProfilePage({
     );
   }
 
+  const slots = await getAvailableSlotsForDoctor(doctor.id);
+
   return (
     <PageShell className="flex flex-col gap-6">
       <Link
@@ -71,7 +78,11 @@ export default async function DoctorProfilePage({
 
         <aside className="flex flex-col gap-6">
           <DoctorSessionInfoCard doctor={doctor} />
-          <DoctorProfileCTA />
+          <DoctorBookingPanel
+            doctor={doctor}
+            slots={slots}
+            viewerRole={viewerProfile?.role ?? null}
+          />
         </aside>
       </div>
     </PageShell>
