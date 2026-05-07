@@ -8,6 +8,7 @@ import type {
   DoctorTimeOff,
   PatientAppointmentRow,
 } from "@/types/appointments";
+import type { DoctorVerificationReviewRow } from "@/types/admin";
 import type {
   DoctorProfile,
   PatientProfile,
@@ -58,6 +59,11 @@ export type Database = {
         Appointment,
         AppointmentInsert,
         AppointmentUpdate
+      >;
+      doctor_verification_reviews: TableDefinition<
+        DoctorVerificationReviewRow,
+        DoctorVerificationReviewInsert,
+        DoctorVerificationReviewUpdate
       >;
     };
     Views: {
@@ -113,6 +119,50 @@ export type Database = {
       get_doctor_appointments: {
         Args: Record<string, never>;
         Returns: DoctorAppointmentRow[];
+      };
+      admin_approve_doctor: {
+        Args: {
+          p_doctor_profile_id: string;
+          p_make_public?: boolean;
+          p_review_note?: string | null;
+        };
+        Returns: Array<{
+          doctor_profile_id: string;
+          verification_status: DoctorProfile["verification_status"];
+          is_public: boolean;
+        }>;
+      };
+      admin_reject_doctor: {
+        Args: {
+          p_doctor_profile_id: string;
+          p_review_note?: string | null;
+        };
+        Returns: Array<{
+          doctor_profile_id: string;
+          verification_status: DoctorProfile["verification_status"];
+          is_public: boolean;
+        }>;
+      };
+      admin_set_doctor_public_status: {
+        Args: {
+          p_doctor_profile_id: string;
+          p_is_public: boolean;
+        };
+        Returns: Array<{
+          doctor_profile_id: string;
+          verification_status: DoctorProfile["verification_status"];
+          is_public: boolean;
+        }>;
+      };
+      admin_set_profile_active_status: {
+        Args: {
+          p_profile_id: string;
+          p_is_active: boolean;
+        };
+        Returns: Array<{
+          profile_id: string;
+          is_active: boolean;
+        }>;
       };
     };
     Enums: Record<string, never>;
@@ -176,6 +226,9 @@ export type DoctorProfileInsert = {
   clinic_address?: string | null;
   verification_status?: DoctorProfile["verification_status"];
   is_public?: boolean;
+  rejection_reason?: string | null;
+  verified_at?: string | null;
+  verified_by?: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -233,4 +286,17 @@ export type AppointmentInsert = {
 
 export type AppointmentUpdate = Partial<
   Omit<AppointmentInsert, "id" | "patient_profile_id" | "doctor_profile_id">
+>;
+
+export type DoctorVerificationReviewInsert = {
+  id?: string;
+  doctor_profile_id: string;
+  reviewed_by?: string | null;
+  decision: DoctorVerificationReviewRow["decision"];
+  review_note?: string | null;
+  created_at?: string;
+};
+
+export type DoctorVerificationReviewUpdate = Partial<
+  Omit<DoctorVerificationReviewInsert, "id" | "doctor_profile_id">
 >;

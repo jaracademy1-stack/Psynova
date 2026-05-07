@@ -23,17 +23,17 @@ const statusCopy = {
   pending: {
     label: "Pending review",
     tone: "warning" as const,
-    text: "Your profile is under review. It will not appear publicly until an admin approves it.",
+    text: "Your profile is under review. Admin will review your professional details before public listing and booking are available.",
   },
   approved: {
     label: "Approved",
     tone: "success" as const,
-    text: "Your profile is approved. It appears publicly only when marked public by admin workflow.",
+    text: "Your profile is approved. Public visibility is controlled by the admin verification workflow.",
   },
   rejected: {
     label: "Needs support",
     tone: "danger" as const,
-    text: "Your application needs follow-up. Please contact platform support for next steps.",
+    text: "Your application needs attention. Please contact platform support for the next steps.",
   },
 };
 
@@ -43,7 +43,7 @@ export default async function DoctorDashboardPage() {
   const [doctorProfileResult, appointments] = await Promise.all([
     supabase
       .from("doctor_profiles")
-      .select("professional_title, bio, verification_status, is_public")
+      .select("id, professional_title, bio, verification_status, is_public")
       .eq("user_id", profile.id)
       .maybeSingle(),
     getDoctorAppointments(),
@@ -85,6 +85,17 @@ export default async function DoctorDashboardPage() {
           <Card.Title>Verification status</Card.Title>
           <Card.Description>{status.text}</Card.Description>
         </Card.Header>
+        {doctorProfile?.verification_status === "approved" &&
+        doctorProfile.is_public ? (
+          <Card.Content>
+            <Link
+              href={`/doctor/${doctorProfile.id}`}
+              className={cn(buttonVariants({ variant: "outline" }), "h-9 px-4")}
+            >
+              View public profile
+            </Link>
+          </Card.Content>
+        ) : null}
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-3">

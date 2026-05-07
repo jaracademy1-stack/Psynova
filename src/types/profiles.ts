@@ -52,6 +52,9 @@ export type DoctorProfile = {
   clinic_address: string | null;
   verification_status: VerificationStatus;
   is_public: boolean;
+  rejection_reason?: string | null;
+  verified_at?: string | null;
+  verified_by?: string | null;
   created_at: string;
   updated_at: string;
 };
