@@ -67,6 +67,27 @@ function normalizePatientSignupError(message?: string) {
   return "We could not create this account. Please check your details or try another email.";
 }
 
+function normalizeLoginError(message?: string) {
+  const normalized = message?.toLowerCase() ?? "";
+
+  if (normalized.includes("email not confirmed")) {
+    return "Please confirm your email before logging in. Check your inbox for the confirmation link.";
+  }
+
+  if (
+    normalized.includes("invalid login") ||
+    normalized.includes("invalid credentials")
+  ) {
+    return "The email or password is incorrect.";
+  }
+
+  if (normalized.includes("email")) {
+    return "Check your email address and try again.";
+  }
+
+  return "We could not sign you in right now. Please try again.";
+}
+
 async function getEmailRedirectTo(path: string) {
   const headerStore = await headers();
   const origin = headerStore.get("origin");
@@ -95,7 +116,11 @@ export async function signInWithPassword(
   });
 
   if (!parsed.success) {
-    return formatZodErrors(parsed.error);
+    console.warn("VALIDATION_ERROR", {
+      action: "signInWithPassword",
+      fields: Object.keys(parsed.error.flatten().fieldErrors),
+    });
+    return formatZodFieldErrors(parsed.error);
   }
 
   const configError = assertSupabaseConfigured();
@@ -109,8 +134,16 @@ export async function signInWithPassword(
   );
 
   if (error || !authData.user) {
+    console.error("SUPABASE_AUTH_LOGIN_ERROR", {
+      action: "signInWithPassword",
+      code: error?.code,
+      status: error?.status,
+      message: error?.message,
+      hasUser: Boolean(authData.user),
+    });
+
     return {
-      error: "We could not sign you in. Check your email and password.",
+      error: normalizeLoginError(error?.message),
     };
   }
 
@@ -121,6 +154,14 @@ export async function signInWithPassword(
     .maybeSingle();
 
   if (profileError || !profile || !profile.is_active) {
+    console.error("PROFILE_LOOKUP_ERROR", {
+      action: "signInWithPassword",
+      userId: authData.user.id,
+      hasProfile: Boolean(profile),
+      profileIsActive: profile?.is_active,
+      message: profileError?.message,
+    });
+
     return {
       error:
         "Your account profile is not ready yet. Please contact support if this continues.",

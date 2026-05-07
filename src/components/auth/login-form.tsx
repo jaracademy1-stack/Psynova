@@ -12,7 +12,7 @@ export function LoginForm() {
   const [state, formAction, isPending] = useActionState(signInWithPassword, {});
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} noValidate className="flex flex-col gap-5">
       <Card className="border bg-background/60">
         <Card.Header>
           <Card.Title>Welcome back</Card.Title>
@@ -29,11 +29,11 @@ export function LoginForm() {
             <Input
               id="email"
               name="email"
-              type="email"
+              type="text"
+              inputMode="email"
               autoComplete="email"
               placeholder="you@example.com"
               fullWidth
-              required
             />
             <FieldError errors={state.fieldErrors?.email} />
           </div>
@@ -48,7 +48,6 @@ export function LoginForm() {
               autoComplete="current-password"
               placeholder="Enter your password"
               fullWidth
-              required
             />
             <FieldError errors={state.fieldErrors?.password} />
           </div>
