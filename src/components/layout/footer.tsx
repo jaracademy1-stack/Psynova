@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { Separator } from "@/components/ui/separator";
 
 const footerLinks = [
@@ -19,7 +20,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
           <div className="flex flex-col gap-3">
-            <p className="text-lg font-semibold">Psynova</p>
+            <BrandLogo className="h-16 max-w-[220px]" />
             <p className="max-w-xl text-sm leading-6 text-muted-foreground">
               A booking platform for connecting patients with licensed mental
               health professionals. Built for privacy, clarity, and safe access

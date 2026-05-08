@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   },
   description:
     "A calm, secure booking platform for finding and scheduling sessions with mental health professionals.",
+  icons: {
+    icon: "/psynova-mark.svg",
+  },
 };
 
 export default function RootLayout({

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Brain, LockKeyhole } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
+
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 type AuthShellProps = {
   title: string;
@@ -19,11 +21,8 @@ export function AuthShell({
     <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-16">
       <aside className="flex flex-col justify-between rounded-3xl border bg-card p-6 shadow-sm lg:min-h-[620px]">
         <div className="flex flex-col gap-8">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <span className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-              <Brain className="size-5" />
-            </span>
-            <span>Psynova</span>
+          <Link href="/" aria-label="Psynova home" className="flex items-center">
+            <BrandLogo className="h-16 max-w-[220px]" />
           </Link>
           <div className="flex flex-col gap-4">
             <h1 className="text-3xl font-semibold tracking-normal sm:text-4xl">
