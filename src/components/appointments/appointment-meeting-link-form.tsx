@@ -49,6 +49,7 @@ export function AppointmentMeetingLinkForm({
 
         <form action={formAction} className="flex flex-col gap-2">
           <input type="hidden" name="appointmentId" value={appointmentId} />
+          <input type="hidden" name="intent" value="save" />
           <input
             name="meetingUrl"
             type="url"
@@ -77,6 +78,7 @@ export function AppointmentMeetingLinkForm({
         {meetingUrl ? (
           <form action={formAction}>
             <input type="hidden" name="appointmentId" value={appointmentId} />
+            <input type="hidden" name="intent" value="clear" />
             <input type="hidden" name="meetingUrl" value="" />
             <Button
               type="submit"

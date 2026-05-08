@@ -71,6 +71,51 @@ function parseMeetingUrl(rawValue: string) {
   }
 }
 
+function getMeetingUrlErrorMessage(error: {
+  code?: string;
+  message?: string;
+}) {
+  const message = error.message ?? "";
+
+  if (
+    error.code === "PGRST202" ||
+    error.code === "PGRST203" ||
+    error.code === "42883" ||
+    error.code === "42703" ||
+    message.includes("Could not find the function") ||
+    message.includes("schema cache") ||
+    message.includes("column")
+  ) {
+    return "Meeting link support is not ready on the database yet. Please apply the latest migration.";
+  }
+
+  if (message.includes("valid meeting link")) {
+    return "Enter a valid meeting link starting with http:// or https://.";
+  }
+
+  if (message.includes("Appointment not found")) {
+    return "You can only update meeting links for your own appointments.";
+  }
+
+  if (message.includes("Only doctor")) {
+    return "You can only update meeting links for your own appointments.";
+  }
+
+  if (message.includes("active appointments")) {
+    return "Meeting links can only be changed for requested or confirmed appointments.";
+  }
+
+  if (message.includes("online")) {
+    return "Meeting links are only available for online sessions.";
+  }
+
+  if (message.includes("log in")) {
+    return "Please log in to continue.";
+  }
+
+  return "We could not save the meeting link. Please try again.";
+}
+
 export async function bookAppointment(
   _previousState: AppointmentActionResult,
   formData: FormData
@@ -196,10 +241,19 @@ export async function setDoctorAppointmentMeetingUrl(
   formData: FormData
 ): Promise<AppointmentActionResult> {
   const appointmentId = getString(formData, "appointmentId");
-  const parsed = parseMeetingUrl(getString(formData, "meetingUrl"));
+  const intent = getString(formData, "intent");
+  const rawMeetingUrl = getString(formData, "meetingUrl");
+  const parsed =
+    intent === "clear"
+      ? { meetingUrl: null, error: null }
+      : parseMeetingUrl(rawMeetingUrl);
 
   if (!appointmentId) {
     return { error: "Appointment not found." };
+  }
+
+  if (intent !== "clear" && !rawMeetingUrl) {
+    return { error: "Enter a meeting link before saving." };
   }
 
   if (parsed.error) {
@@ -213,23 +267,15 @@ export async function setDoctorAppointmentMeetingUrl(
   });
 
   if (error) {
-    if (error.message.includes("valid meeting link")) {
-      return {
-        error: "Enter a valid meeting link starting with http:// or https://.",
-      };
-    }
+    console.error("SET_DOCTOR_MEETING_URL_ERROR", {
+      appointmentId,
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
 
-    if (error.message.includes("online")) {
-      return { error: "Meeting links are only available for online sessions." };
-    }
-
-    if (error.message.includes("active appointments")) {
-      return {
-        error: "Meeting links can only be changed for requested or confirmed appointments.",
-      };
-    }
-
-    return { error: "We could not save the meeting link. Please try again." };
+    return { error: getMeetingUrlErrorMessage(error) };
   }
 
   revalidatePath("/doctor/dashboard");
