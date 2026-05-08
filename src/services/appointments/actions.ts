@@ -38,6 +38,39 @@ function normalizeDatabaseError(message?: string) {
   return "We could not complete this action. Please try again.";
 }
 
+function parseMeetingUrl(rawValue: string) {
+  const value = rawValue.trim();
+
+  if (!value) {
+    return { meetingUrl: null, error: null };
+  }
+
+  if (value.length > 500) {
+    return {
+      meetingUrl: null,
+      error: "Meeting links must be 500 characters or fewer.",
+    };
+  }
+
+  try {
+    const url = new URL(value);
+
+    if (!["http:", "https:"].includes(url.protocol)) {
+      return {
+        meetingUrl: null,
+        error: "Enter a valid meeting link starting with http:// or https://.",
+      };
+    }
+
+    return { meetingUrl: value, error: null };
+  } catch {
+    return {
+      meetingUrl: null,
+      error: "Enter a valid meeting link starting with http:// or https://.",
+    };
+  }
+}
+
 export async function bookAppointment(
   _previousState: AppointmentActionResult,
   formData: FormData
@@ -156,4 +189,55 @@ export async function completeDoctorAppointment(
   formData: FormData
 ) {
   return updateDoctorAppointment(formData, "completed");
+}
+
+export async function setDoctorAppointmentMeetingUrl(
+  _previousState: AppointmentActionResult,
+  formData: FormData
+): Promise<AppointmentActionResult> {
+  const appointmentId = getString(formData, "appointmentId");
+  const parsed = parseMeetingUrl(getString(formData, "meetingUrl"));
+
+  if (!appointmentId) {
+    return { error: "Appointment not found." };
+  }
+
+  if (parsed.error) {
+    return { error: parsed.error };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("set_doctor_appointment_meeting_url", {
+    p_appointment_id: appointmentId,
+    p_meeting_url: parsed.meetingUrl,
+  });
+
+  if (error) {
+    if (error.message.includes("valid meeting link")) {
+      return {
+        error: "Enter a valid meeting link starting with http:// or https://.",
+      };
+    }
+
+    if (error.message.includes("online")) {
+      return { error: "Meeting links are only available for online sessions." };
+    }
+
+    if (error.message.includes("active appointments")) {
+      return {
+        error: "Meeting links can only be changed for requested or confirmed appointments.",
+      };
+    }
+
+    return { error: "We could not save the meeting link. Please try again." };
+  }
+
+  revalidatePath("/doctor/dashboard");
+  revalidatePath("/patient/dashboard");
+
+  return {
+    success: parsed.meetingUrl
+      ? "Meeting link saved."
+      : "Meeting link cleared.",
+  };
 }

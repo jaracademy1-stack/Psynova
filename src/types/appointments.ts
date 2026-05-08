@@ -45,6 +45,9 @@ export type Appointment = {
   patient_message: string | null;
   doctor_response_note: string | null;
   cancellation_reason: string | null;
+  meeting_url: string | null;
+  meeting_url_updated_at: string | null;
+  meeting_url_updated_by: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -82,11 +85,14 @@ export type PatientAppointmentRow = {
   patient_message: string | null;
   doctor_response_note: string | null;
   cancellation_reason: string | null;
+  meeting_url: string | null;
+  meeting_url_updated_at: string | null;
 };
 
 export type DoctorAppointmentRow = {
   id: string;
   patient_display_name: string;
+  patient_phone: string | null;
   starts_at: string;
   ends_at: string;
   status: AppointmentStatus;
@@ -94,4 +100,6 @@ export type DoctorAppointmentRow = {
   patient_message: string | null;
   doctor_response_note: string | null;
   cancellation_reason: string | null;
+  meeting_url: string | null;
+  meeting_url_updated_at: string | null;
 };

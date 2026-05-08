@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, EmptyState } from "@heroui/react";
-import { CalendarCheck, Search } from "lucide-react";
+import { CalendarCheck, ExternalLink, Search } from "lucide-react";
 
 import { AppointmentActionForm } from "@/components/appointments/appointment-action-form";
 import { AppointmentStatusBadge } from "@/components/appointments/appointment-status-badge";
@@ -48,7 +48,8 @@ export function PatientAppointmentsSection({
             <Card.Content className="p-4 text-sm leading-6 text-accent-foreground">
               Requested appointments are waiting for doctor review. Confirmed
               appointments are accepted. Cancelled, declined, completed, and
-              no-show appointments move into recent history.
+              no-show appointments move into recent history. Online meeting
+              links appear here after the provider adds them.
             </Card.Content>
           </Card>
           {activeAppointments.map((appointment) => (
@@ -131,6 +132,38 @@ function PatientAppointmentCard({
           {!compact && appointment.doctor_response_note ? (
             <p className="rounded-2xl bg-muted p-3 text-sm leading-6 text-muted-foreground">
               Doctor note: {appointment.doctor_response_note}
+            </p>
+          ) : null}
+          {!compact && appointment.session_type === "online" ? (
+            <div className="rounded-2xl border bg-background p-3 text-sm leading-6">
+              <p className="font-medium">Online meeting</p>
+              {appointment.meeting_url ? (
+                <>
+                  <a
+                    href={appointment.meeting_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    <ExternalLink className="size-4" />
+                    Join meeting
+                  </a>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                    Join at your scheduled time. If the link does not work,
+                    contact the provider using the agreed contact method.
+                  </p>
+                </>
+              ) : (
+                <p className="mt-1 text-muted-foreground">
+                  Meeting link will appear here after the provider adds it.
+                </p>
+              )}
+            </div>
+          ) : null}
+          {!compact && appointment.session_type === "in_person" ? (
+            <p className="rounded-2xl bg-muted p-3 text-sm leading-6 text-muted-foreground">
+              In-person appointment. Your provider will coordinate location
+              details through the agreed contact method when needed.
             </p>
           ) : null}
         </div>

@@ -149,7 +149,7 @@ Only the owner doctor can manage these records.
 
 - No payments.
 - No chat.
-- No video session links.
+- No in-app video calls.
 - No clinical notes.
 - No appointment reminders.
 - No rescheduling flow yet.

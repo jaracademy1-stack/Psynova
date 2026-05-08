@@ -120,7 +120,7 @@ Use real test users in Supabase Auth. These are practical checks rather than see
 - [ ] Try booking the same active slot twice.
 - [ ] Confirm duplicate booking is blocked.
 - [ ] Confirm pending/private/rejected doctors expose no slots.
-- [ ] Confirm no patient phone/email appears in doctor dashboard appointment cards.
+- [ ] Confirm assigned doctors can see patient phone for appointment coordination, but patient email remains hidden.
 - [ ] Confirm no time-off reason appears on public doctor profile.
 
 ## Known Issues Found
@@ -135,6 +135,7 @@ Use real test users in Supabase Auth. These are practical checks rather than see
 - No appointment status history table yet.
 - No appointment detail page yet.
 - No notifications or reminders yet.
+- Meeting links and assigned-doctor patient phone visibility are documented in Phase 7.
 - No timezone picker; `Africa/Cairo` is the MVP platform timezone.
 - No rescheduling flow.
 

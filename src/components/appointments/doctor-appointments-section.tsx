@@ -1,7 +1,8 @@
 import { Card, EmptyState } from "@heroui/react";
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, Phone } from "lucide-react";
 
 import { AppointmentActionForm } from "@/components/appointments/appointment-action-form";
+import { AppointmentMeetingLinkForm } from "@/components/appointments/appointment-meeting-link-form";
 import { AppointmentStatusBadge } from "@/components/appointments/appointment-status-badge";
 import { formatDateTime, formatTimeRange } from "@/lib/dates";
 import {
@@ -34,9 +35,9 @@ export function DoctorAppointmentsSection({
       <div>
         <h2 className="text-2xl font-semibold">Appointment requests</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Review requests and manage confirmed sessions. Patient contact details
-          are not shown in this phase. Confirm only when the time is workable;
-          decline or cancel with a short neutral note when needed.
+          Review requests, coordinate confirmed sessions, and add online meeting
+          links when needed. Patient contact details shown here are only for
+          appointment coordination.
         </p>
       </div>
 
@@ -45,7 +46,8 @@ export function DoctorAppointmentsSection({
           <Card className="border bg-accent/70">
             <Card.Content className="p-4 text-sm leading-6 text-accent-foreground">
               Appointment actions are validated server-side. Doctors can confirm
-              or decline requests, and can cancel or complete confirmed sessions.
+              or decline requests, cancel or complete confirmed sessions, and
+              add meeting links only for assigned online appointments.
             </Card.Content>
           </Card>
           {requested.map((appointment) => (
@@ -117,9 +119,31 @@ function DoctorAppointmentCard({
               {formatTimeRange(appointment.starts_at, appointment.ends_at)}
             </p>
           </div>
+          <div className="rounded-2xl bg-muted p-3 text-sm leading-6 text-muted-foreground">
+            <div className="mb-1 flex items-center gap-2 font-medium text-foreground">
+              <Phone className="size-4" />
+              Patient phone
+            </div>
+            <p>{appointment.patient_phone || "No phone provided"}</p>
+            <p className="mt-1 text-xs leading-5">
+              Use this only for appointment coordination.
+            </p>
+          </div>
           {!compact && appointment.patient_message ? (
             <p className="rounded-2xl bg-muted p-3 text-sm leading-6 text-muted-foreground">
               Patient message: {appointment.patient_message}
+            </p>
+          ) : null}
+          {!compact && appointment.session_type === "online" ? (
+            <AppointmentMeetingLinkForm
+              appointmentId={appointment.id}
+              meetingUrl={appointment.meeting_url}
+            />
+          ) : null}
+          {!compact && appointment.session_type === "in_person" ? (
+            <p className="rounded-2xl bg-muted p-3 text-sm leading-6 text-muted-foreground">
+              In-person session. No online meeting link is needed for this
+              appointment.
             </p>
           ) : null}
         </div>

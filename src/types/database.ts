@@ -117,6 +117,17 @@ export type Database = {
         };
         Returns: Array<{ id: string; status: AppointmentStatus }>;
       };
+      set_doctor_appointment_meeting_url: {
+        Args: {
+          p_appointment_id: string;
+          p_meeting_url?: string | null;
+        };
+        Returns: Array<{
+          id: string;
+          meeting_url: string | null;
+          meeting_url_updated_at: string | null;
+        }>;
+      };
       get_patient_appointments: {
         Args: Record<string, never>;
         Returns: PatientAppointmentRow[];
@@ -285,6 +296,9 @@ export type AppointmentInsert = {
   patient_message?: string | null;
   doctor_response_note?: string | null;
   cancellation_reason?: string | null;
+  meeting_url?: string | null;
+  meeting_url_updated_at?: string | null;
+  meeting_url_updated_by?: string | null;
   created_at?: string;
   updated_at?: string;
 };
