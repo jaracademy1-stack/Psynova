@@ -17,8 +17,14 @@ function normalize(value: string | null | undefined) {
   return value?.trim().toLowerCase() ?? "";
 }
 
-function parseNumberFilter(value: string) {
-  const parsed = Number(value);
+function parseNumberFilter(value: string | null | undefined) {
+  const trimmed = value?.trim() ?? "";
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 }
 
