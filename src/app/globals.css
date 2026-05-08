@@ -61,9 +61,10 @@
   --secondary: oklch(0.43 0.095 185);
   --secondary-foreground: oklch(0.99 0.01 210);
   --muted: oklch(0.95 0.012 215);
-  --muted-foreground: oklch(0.36 0.035 250);
+  --muted-foreground: oklch(0.3 0.035 250);
   --accent: oklch(0.94 0.04 185);
   --accent-foreground: oklch(0.22 0.055 190);
+  --field-placeholder: var(--muted-foreground);
   --destructive: oklch(0.58 0.2 25);
   --border: oklch(0.9 0.018 220);
   --input: oklch(0.9 0.018 220);
@@ -132,10 +133,22 @@
     color: var(--muted-foreground);
     opacity: 0.82;
   }
-  [data-slot="card-description"] {
-    color: var(--muted-foreground);
-  }
   [data-slot="card"] {
     color: var(--card-foreground);
+  }
+}
+
+@layer utilities {
+  .text-muted {
+    color: var(--muted-foreground) !important;
+  }
+
+  .card__description,
+  .description,
+  .alert__description,
+  .fieldset__description,
+  .toast__description,
+  [data-slot="card-description"] {
+    color: var(--muted-foreground) !important;
   }
 }
