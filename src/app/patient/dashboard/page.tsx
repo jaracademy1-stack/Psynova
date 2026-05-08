@@ -99,8 +99,9 @@ export default async function PatientDashboardPage() {
         <Card.Header>
           <Card.Title>Privacy note</Card.Title>
           <Card.Description>
-            Patient profile information is protected by RLS and is not visible
-            on public pages or to doctors in this phase.
+            Patient profile information is protected by RLS. Public pages never
+            show your private details; assigned providers only see the minimum
+            appointment coordination details needed for booked sessions.
           </Card.Description>
         </Card.Header>
       </Card>
